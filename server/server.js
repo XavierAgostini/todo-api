@@ -113,13 +113,13 @@ app.post('/users', (req, res) => {
   })
 })
 
-app.delete('/users', (req, res) => {
-  User.remove({}).then((user) => {
-    res.send(user)
-  }, (e) => {
-    res.status(404).send(e)
-  })
-})
+// app.delete('/users', (req, res) => {
+//   User.remove({}).then((user) => {
+//     res.send(user)
+//   }, (e) => {
+//     res.status(404).send(e)
+//   })
+// })
 
 
 app.get('/users/me', authenticate, (req, res) => {
