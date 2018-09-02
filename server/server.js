@@ -1,12 +1,5 @@
-var env = process.env.NODE_ENV || 'development'
-console.log('env ******', env)
-if (env === 'development') {
-  process.env.PORT = 3000
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp'
-} else if (env === 'test') {
-  process.env.PORT = 3000
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest'
-}
+require('./config/config')
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const {ObjectID} = require('mongodb')
@@ -15,6 +8,7 @@ const _ = require('lodash')
 var {mongoose}= require('./db/mongoose')
 var {Todo} = require('./models/todo')
 var {User} = require('./models/user')
+var {authenticate} = require('./middleware/authenticate')
 
 var app = express()
 
@@ -107,28 +101,17 @@ app.post('/users', (req, res) => {
   })
 })
 
-app.get('/users/:id', (req, res) => {
-  console.log('get users')
-  var id = req.params.id
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send()
-  }
-  User.findById(id).then((user) => {
-    if (!user) {
-      return res.status(404).send()
-    }
-    res.send({user})
-  }, (e) => {
-    res.status(400).send(e)
-  })
-})
-
 app.delete('/users', (req, res) => {
   User.remove({}).then((user) => {
     res.send(user)
   }, (e) => {
     res.status(404).send(e)
   })
+})
+
+
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user)
 })
 
 app.listen(process.env.PORT, () => {
